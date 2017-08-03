@@ -7,14 +7,14 @@
     "B56F7D52CF2ADA04A9756A36E4DD34AF636EFA07" : 9223372036854775807,
     "C1BCA8F4805490F8BF8CC1BE1EB3C264D4847762" : 9223372036854775807
   },
-  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "74718C21-D1F7-4AC6-B4F9-9E5F5DBEDEFE",
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "A80DF1FC-28C2-438B-80A2-328C4DF456FB",
   "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
     "B56F7D52CF2ADA04A9756A36E4DD34AF636EFA07" : "",
     "C1BCA8F4805490F8BF8CC1BE1EB3C264D4847762" : "deps\/"
   },
-  "DVTSourceControlWorkspaceBlueprintNameKey" : "Simple2D",
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "MyApp",
   "DVTSourceControlWorkspaceBlueprintVersion" : 204,
-  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "xcode\/Simple2D.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "xcode\/tvos\/MyApp.xcodeproj",
   "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
     {
       "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "https:\/\/github.com\/simple2d\/simple2d.git",
