@@ -14,4 +14,4 @@ This contains development libraries and assets needed by Simple 2D. External lib
 
 ## Building libraries
 
-Run `bash build.sh` to build SDL2 static libraries and frameworks for iOS and tvOS.
+Run `make` to build SDL2 static libraries and frameworks for iOS and tvOS.
