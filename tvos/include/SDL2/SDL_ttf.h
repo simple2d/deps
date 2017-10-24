@@ -1,6 +1,6 @@
 /*
   SDL_ttf:  A companion library to SDL for working with TrueType (tm) fonts
-  Copyright (C) 2001-2017 Sam Lantinga <slouken@libsdl.org>
+  Copyright (C) 2001-2016 Sam Lantinga <slouken@libsdl.org>
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages
@@ -28,8 +28,8 @@
    Unicode is hard, we learn as we go, and we apologize for adding to the
    confusion. */
 
-#ifndef SDL_TTF_H_
-#define SDL_TTF_H_
+#ifndef _SDL_TTF_H
+#define _SDL_TTF_H
 
 #include "SDL.h"
 #include "begin_code.h"
@@ -277,6 +277,4 @@ extern DECLSPEC int TTF_GetFontKerningSizeGlyphs(TTF_Font *font, Uint16 previous
 #endif
 #include "close_code.h"
 
-#endif /* SDL_TTF_H_ */
-
-/* vi: set ts=4 sw=4 expandtab: */
+#endif /* _SDL_TTF_H */
