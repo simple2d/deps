@@ -32,10 +32,10 @@ cd tmp
 
 # Set SDL2 lib URLs
 
-sdl_url="https://hg.libsdl.org/SDL/archive/tip.tar.gz"
-image_url="https://hg.libsdl.org/SDL_image/archive/tip.tar.gz"
-mixer_url="https://hg.libsdl.org/SDL_mixer/archive/tip.tar.gz"
-ttf_url="https://hg.libsdl.org/SDL_ttf/archive/tip.tar.gz"
+sdl_url="https://www.libsdl.org/release/SDL2-2.0.7.tar.gz"
+image_url="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.2.tar.gz"
+mixer_url="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.2.tar.gz"
+ttf_url="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz"
 
 # Download SDL2 libs
 
@@ -63,24 +63,24 @@ fi
 
 task "Extracting SDL directories..."
 
-if [ ! -d SDL2 ]; then
+if [ ! -d SDL ]; then
   tar -xzf SDL2.tar.gz
-  mv SDL-* SDL2
+  mv SDL2-* SDL
 fi
 
-if [ ! -d SDL2_image ]; then
+if [ ! -d SDL_image ]; then
   tar -xzf SDL2_image.tar.gz
-  mv SDL_image-* SDL2_image
+  mv SDL2_image-* SDL_image
 fi
 
-if [ ! -d SDL2_mixer ]; then
+if [ ! -d SDL_mixer ]; then
   tar -xzf SDL2_mixer.tar.gz
-  mv SDL_mixer-* SDL2_mixer
+  mv SDL2_mixer-* SDL_mixer
 fi
 
-if [ ! -d SDL2_ttf ]; then
+if [ ! -d SDL_ttf ]; then
   tar -xzf SDL2_ttf.tar.gz
-  mv SDL_ttf-* SDL2_ttf
+  mv SDL2_ttf-* SDL_ttf
 fi
 
 # Builds a static library
@@ -119,7 +119,7 @@ build() {
 
 task "Building SDL2..."
 
-cd SDL2/Xcode-iOS/SDL
+cd SDL/Xcode-iOS/SDL
 
 build libSDL libSDL2
 
@@ -135,9 +135,9 @@ cd ../../..
 
 task "Building SDL2_image..."
 
-cd SDL2_image/Xcode-iOS
+cd SDL_image/Xcode-iOS
 
-build libSDL_image libSDL2_image "HEADER_SEARCH_PATHS=../../SDL2/include"
+build libSDL_image libSDL2_image
 
 cp ../SDL_image.h $IOS_DIR/include/SDL2
 cp ../SDL_image.h $TVOS_DIR/include/SDL2
@@ -151,9 +151,9 @@ cd ../..
 
 task "Building SDL2_mixer..."
 
-cd SDL2_mixer/Xcode-iOS
+cd SDL_mixer/Xcode-iOS
 
-build "Static Library" libSDL2_mixer "HEADER_SEARCH_PATHS=../../SDL2/include ../external/libmodplug-0.8.8.4/src ../external/libmodplug-0.8.8.4/src/libmodplug ../external/libvorbisidec-1.2.1 ../external/libogg-1.3.1/include" "GCC_PREPROCESSOR_DEFINITIONS=WAV_MUSIC MID_MUSIC OGG_MUSIC OGG_USE_TREMOR OGG_HEADER=<ivorbisfile.h> HAVE_STDINT_H HAVE_SETENV HAVE_SINF"
+build "Static Library" libSDL2_mixer
 
 cp ../SDL_mixer.h $IOS_DIR/include/SDL2
 cp ../SDL_mixer.h $TVOS_DIR/include/SDL2
@@ -167,9 +167,9 @@ cd ../..
 
 task "Building SDL2_ttf..."
 
-cd SDL2_ttf/Xcode-iOS
+cd SDL_ttf/Xcode-iOS
 
-build "Static Library" libSDL2_ttf "HEADER_SEARCH_PATHS=../../SDL2/include ../external/freetype-2.4.12/include"
+build "Static Library" libSDL2_ttf
 
 cp ../SDL_ttf.h $IOS_DIR/include/SDL2
 cp ../SDL_ttf.h $TVOS_DIR/include/SDL2
