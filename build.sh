@@ -153,7 +153,7 @@ task "Building SDL2_mixer..."
 
 cd SDL_mixer/Xcode-iOS
 
-build "Static Library" libSDL2_mixer
+build "Static Library" libSDL2_mixer "GCC_PREPROCESSOR_DEFINITIONS=MUSIC_WAV MUSIC_MID_TIMIDITY MUSIC_OGG OGG_USE_TREMOR OGG_HEADER=<ivorbisfile.h> MUSIC_FLAC FLAC__HAS_OGG HAVE_SYS_PARAM_H HAVE_STDINT_H HAVE_LROUND HAVE_SETENV HAVE_SINF"
 
 cp ../SDL_mixer.h $IOS_DIR/include/SDL2
 cp ../SDL_mixer.h $TVOS_DIR/include/SDL2
