@@ -1,12 +1,175 @@
 #!/bin/bash
 
-# ------------------------------------------------------------------------------
-# Builds SDL2 static libraries and frameworks for iOS and tvOS
-# ------------------------------------------------------------------------------
+# Library URLs
+
+sdl_src="https://www.libsdl.org/release/SDL2-2.0.7.tar.gz"
+sdl_vc="https://www.libsdl.org/release/SDL2-devel-2.0.7-VC.zip"
+sdl_mingw="https://www.libsdl.org/release/SDL2-devel-2.0.7-mingw.tar.gz"
+
+image_src="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.2.tar.gz"
+image_vc="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.2-VC.zip"
+image_mingw="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.2-mingw.tar.gz"
+
+mixer_src="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.2.tar.gz"
+mixer_vc="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip"
+mixer_mingw="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-mingw.tar.gz"
+
+ttf_src="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz"
+ttf_vc="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.14-VC.zip"
+ttf_mingw="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.14-mingw.tar.gz"
+
+glew_src="https://github.com/nigels-com/glew/archive/glew-2.1.0.zip"
+glew_release="https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip"
+
+# Directories
+
+vc_sdl_include_dir=`pwd`/vc/SDL2/include/SDL2
+vc_sdl_lib_dir=`pwd`/vc/SDL2/lib
+vc_glew_include_dir=`pwd`/vc/glew/include
+vc_glew_lib_dir=`pwd`/vc/glew/lib
+
+mingw_bin_dir=`pwd`/mingw/bin
+mingw_include_dir=`pwd`/mingw/include
+mingw_sdl_include_dir=$mingw_include_dir/SDL2
+mingw_lib_dir=`pwd`/mingw/lib
+
+ios_dir=`pwd`/ios
+tvos_dir=`pwd`/tvos
+
+# Helpers
 
 task() {
-  printf "\n\033[1;34m==>\033[1;39m $1\033[0m\n\n"
+  printf "\033[1;34m==>\033[1;39m $1\033[0m\n"
 }
+
+set -e
+
+# Make and enter temporary directory for libs
+
+mkdir -p tmp
+cd tmp
+
+# Download libs ################################################################
+
+download() {
+  # $1 Name; $2 URL; $3 Filename
+  if [ ! -f $3 ]; then
+    task "Downloading $1..."
+    curl -L $2 -o $3
+  else
+    task "$1 already downloaded"
+  fi
+}
+
+download "SDL2 source" $sdl_src   "SDL2.tar.gz"
+download "SDL2 VC"     $sdl_vc    "SDL2-vc.zip"
+download "SDL2 MinGW"  $sdl_mingw "SDL2-mingw.tar.gz"
+
+download "SDL2_image source" $image_src   "SDL2_image.tar.gz"
+download "SDL2_image VC"     $image_vc    "SDL2_image-vc.zip"
+download "SDL2_image MinGW"  $image_mingw "SDL2_image-mingw.tar.gz"
+
+download "SDL2_mixer source" $mixer_src   "SDL2_mixer.tar.gz"
+download "SDL2_mixer VC"     $mixer_vc    "SDL2_mixer-vc.zip"
+download "SDL2_mixer MinGW"  $mixer_mingw "SDL2_mixer-mingw.tar.gz"
+
+download "SDL2_ttf source" $ttf_src   "SDL2_ttf.tar.gz"
+download "SDL2_ttf VC"     $ttf_vc    "SDL2_ttf-vc.zip"
+download "SDL2_ttf MinGW"  $ttf_mingw "SDL2_ttf-mingw.tar.gz"
+
+download "GLEW source"  $glew_src     "glew.zip"
+download "GLEW release" $glew_release "glew-release.zip"
+
+# Extract and rename directories ###############################################
+
+extract() {
+  # $1 File to extract; $2 Rename to
+  if [ ! -d $3 ]; then
+    task "Extracting $1..."
+    if [[ $1 == *.tar.gz ]]; then
+      tar -xzf $1
+    else
+      unzip -q $1
+    fi
+    mv $2 $3
+  else
+    task "$1 already extracted"
+  fi
+}
+
+extract "SDL2.tar.gz"       "SDL2-2.*" "SDL"
+extract "SDL2-vc.zip"       "SDL2-2.*" "SDL-vc"
+extract "SDL2-mingw.tar.gz" "SDL2-2.*" "SDL-mingw"
+
+extract "SDL2_image.tar.gz"       "SDL2_image-2.*" "SDL_image"
+extract "SDL2_image-vc.zip"       "SDL2_image-2.*" "SDL_image-vc"
+extract "SDL2_image-mingw.tar.gz" "SDL2_image-2.*" "SDL_image-mingw"
+
+extract "SDL2_mixer.tar.gz"       "SDL2_mixer-2.*" "SDL_mixer"
+extract "SDL2_mixer-vc.zip"       "SDL2_mixer-2.*" "SDL_mixer-vc"
+extract "SDL2_mixer-mingw.tar.gz" "SDL2_mixer-2.*" "SDL_mixer-mingw"
+
+extract "SDL2_ttf.tar.gz"       "SDL2_ttf-2.*" "SDL_ttf"
+extract "SDL2_ttf-vc.zip"       "SDL2_ttf-2.*" "SDL_ttf-vc"
+extract "SDL2_ttf-mingw.tar.gz" "SDL2_ttf-2.*" "SDL_ttf-mingw"
+
+extract "glew.zip"         "glew-glew*" "glew"
+extract "glew-release.zip" "glew-2.*"   "glew-release"
+
+# VC Libs ######################################################################
+
+task "Making VC libs..."
+
+mkdir -p $vc_sdl_include_dir
+mkdir -p $vc_sdl_lib_dir
+mkdir -p $vc_glew_include_dir
+mkdir -p $vc_glew_lib_dir
+
+copy_sdl_vc() {
+  # $1 lib
+  cp $1/include/*.h $vc_sdl_include_dir
+  cp $1/lib/x64/*.{dll,lib} $vc_sdl_lib_dir
+}
+
+copy_sdl_vc "SDL-vc"
+copy_sdl_vc "SDL_image-vc"
+copy_sdl_vc "SDL_mixer-vc"
+copy_sdl_vc "SDL_ttf-vc"
+
+cp glew-release/include/GL/glew.h $vc_glew_include_dir
+cp glew-release/bin/Release/x64/glew32.dll \
+   glew-release/lib/Release/x64/glew32.lib $vc_glew_lib_dir
+
+# MinGW libs ###################################################################
+
+task "Making MinGW libs..."
+
+mkdir -p $mingw_bin_dir
+mkdir -p $mingw_sdl_include_dir
+mkdir -p $mingw_lib_dir
+
+copy_sdl_mingw() {
+  # $1 lib
+  cp $1/x86_64-w64-mingw32/bin/*.dll $mingw_bin_dir
+  cp $1/x86_64-w64-mingw32/include/SDL2/*.h $mingw_sdl_include_dir
+  cp $1/x86_64-w64-mingw32/lib/*.a $mingw_lib_dir
+}
+
+copy_sdl_mingw "SDL-mingw"
+copy_sdl_mingw "SDL_image-mingw"
+copy_sdl_mingw "SDL_mixer-mingw"
+copy_sdl_mingw "SDL_ttf-mingw"
+
+cp glew-release/include/GL/glew.h $mingw_include_dir
+cp ../glew-mingw/glew32.dll $mingw_bin_dir
+cp ../glew-mingw/libglew32.a ../glew-mingw/libglew32.dll.a $mingw_lib_dir
+
+# iOS and tvOS frameworks ######################################################
+
+mkdir -p $ios_dir/include/SDL2
+mkdir -p $ios_dir/lib
+mkdir -p $tvos_dir/include/SDL2
+mkdir -p $tvos_dir/lib
 
 # Use xcpretty for nicer output: gem install xcpretty
 if xcpretty -v &>/dev/null; then
@@ -17,82 +180,15 @@ else
   XCPRETTY=cat
 fi
 
-set -e
-
-IOS_DIR=`pwd`/ios
-TVOS_DIR=`pwd`/tvos
-
-mkdir -p $IOS_DIR/include/SDL2
-mkdir -p $IOS_DIR/lib
-mkdir -p $TVOS_DIR/include/SDL2
-mkdir -p $TVOS_DIR/lib
-
-mkdir -p tmp
-cd tmp
-
-# Set SDL2 lib URLs
-
-sdl_url="https://www.libsdl.org/release/SDL2-2.0.7.tar.gz"
-image_url="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.2.tar.gz"
-mixer_url="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.2.tar.gz"
-ttf_url="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz"
-
-# Download SDL2 libs
-
-if [ ! -f SDL2.tar.gz ]; then
-  task "Downloading SDL2..."
-  curl $sdl_url -o SDL2.tar.gz
-fi
-
-if [ ! -f SDL2_image.tar.gz ]; then
-  task "Downloading SDL2_image..."
-  curl $image_url -o SDL2_image.tar.gz
-fi
-
-if [ ! -f SDL2_mixer.tar.gz ]; then
-  task "Downloading SDL2_mixer..."
-  curl $mixer_url -o SDL2_mixer.tar.gz
-fi
-
-if [ ! -f SDL2_ttf.tar.gz ]; then
-  task "Downloading SDL2_ttf..."
-  curl $ttf_url -o SDL2_ttf.tar.gz
-fi
-
-# Extract and rename directories
-
-task "Extracting SDL directories..."
-
-if [ ! -d SDL ]; then
-  tar -xzf SDL2.tar.gz
-  mv SDL2-* SDL
-fi
-
-if [ ! -d SDL_image ]; then
-  tar -xzf SDL2_image.tar.gz
-  mv SDL2_image-* SDL_image
-fi
-
-if [ ! -d SDL_mixer ]; then
-  tar -xzf SDL2_mixer.tar.gz
-  mv SDL2_mixer-* SDL_mixer
-fi
-
-if [ ! -d SDL_ttf ]; then
-  tar -xzf SDL2_ttf.tar.gz
-  mv SDL2_ttf-* SDL_ttf
-fi
-
-# Builds a static library
-build() {
+build_ios_tvos_lib() {
   target=$1
   fname=$2
   env1=$3
   env2=$4
 
   # Ignore empty environment variable args, replace with dummy var
-  if [[ $3 == '' ]]; then env1="A="; fi
-  if [[ $4 == '' ]]; then env2="A="; fi
+  if [[ $env1 == '' ]]; then env1="A="; fi
+  if [[ $env2 == '' ]]; then env2="A="; fi
 
   task "Building $fname for iPhone..."
   xcodebuild -target "$target" -configuration Release -sdk iphoneos         "$env1" "$env2" | $XCPRETTY
@@ -115,71 +211,71 @@ build() {
   lipo build/Release-appletvos/$fname.a build/Release-appletvsimulator/$fname.a -create -output build/Release-tvos-universal/$fname.a
 }
 
-# Build SDL2 ###################################################################
+# Build SDL2
 
-task "Building SDL2..."
+task "Building SDL2 iOS and tvOS static libs..."
 
 cd SDL/Xcode-iOS/SDL
 
-build libSDL libSDL2
+build_ios_tvos_lib libSDL libSDL2
 
-cp -r ../../include/*.h $IOS_DIR/include/SDL2
-cp -r ../../include/*.h $TVOS_DIR/include/SDL2
+cp -r ../../include/*.h $ios_dir/include/SDL2
+cp -r ../../include/*.h $tvos_dir/include/SDL2
 
-cp build/Release-ios-universal/libSDL2.a $IOS_DIR/lib
-cp build/Release-tvos-universal/libSDL2.a $TVOS_DIR/lib
+cp build/Release-ios-universal/libSDL2.a $ios_dir/lib
+cp build/Release-tvos-universal/libSDL2.a $tvos_dir/lib
 
 cd ../../..
 
-# Build SDL2_image #############################################################
+# Build SDL2_image
 
-task "Building SDL2_image..."
+task "Building SDL2_image iOS and tvOS static libs..."
 
 cd SDL_image/Xcode-iOS
 
-build libSDL_image libSDL2_image
+build_ios_tvos_lib libSDL_image libSDL2_image
 
-cp ../SDL_image.h $IOS_DIR/include/SDL2
-cp ../SDL_image.h $TVOS_DIR/include/SDL2
+cp ../SDL_image.h $ios_dir/include/SDL2
+cp ../SDL_image.h $tvos_dir/include/SDL2
 
-cp build/Release-ios-universal/libSDL2_image.a $IOS_DIR/lib
-cp build/Release-tvos-universal/libSDL2_image.a $TVOS_DIR/lib
+cp build/Release-ios-universal/libSDL2_image.a $ios_dir/lib
+cp build/Release-tvos-universal/libSDL2_image.a $tvos_dir/lib
 
 cd ../..
 
-# Build SDL2_mixer #############################################################
+# Build SDL2_mixer
 
-task "Building SDL2_mixer..."
+task "Building SDL2_mixer iOS and tvOS static libs..."
 
 cd SDL_mixer/Xcode-iOS
 
-build "Static Library" libSDL2_mixer "GCC_PREPROCESSOR_DEFINITIONS=MUSIC_WAV MUSIC_MID_TIMIDITY MUSIC_OGG OGG_USE_TREMOR OGG_HEADER=<ivorbisfile.h> MUSIC_FLAC FLAC__HAS_OGG HAVE_SYS_PARAM_H HAVE_STDINT_H HAVE_LROUND HAVE_SETENV HAVE_SINF"
+build_ios_tvos_lib "Static Library" libSDL2_mixer "GCC_PREPROCESSOR_DEFINITIONS=MUSIC_WAV MUSIC_MID_TIMIDITY MUSIC_OGG OGG_USE_TREMOR OGG_HEADER=<ivorbisfile.h> MUSIC_FLAC FLAC__HAS_OGG HAVE_SYS_PARAM_H HAVE_STDINT_H HAVE_LROUND HAVE_SETENV HAVE_SINF"
 
-cp ../SDL_mixer.h $IOS_DIR/include/SDL2
-cp ../SDL_mixer.h $TVOS_DIR/include/SDL2
+cp ../SDL_mixer.h $ios_dir/include/SDL2
+cp ../SDL_mixer.h $tvos_dir/include/SDL2
 
-cp build/Release-ios-universal/libSDL2_mixer.a $IOS_DIR/lib
-cp build/Release-tvos-universal/libSDL2_mixer.a $TVOS_DIR/lib
+cp build/Release-ios-universal/libSDL2_mixer.a $ios_dir/lib
+cp build/Release-tvos-universal/libSDL2_mixer.a $tvos_dir/lib
 
 cd ../..
 
-# Build SDL2_ttf ###############################################################
+# Build SDL2_ttf
 
-task "Building SDL2_ttf..."
+task "Building SDL2_ttf iOS and tvOS static libs..."
 
 cd SDL_ttf/Xcode-iOS
 
-build "Static Library" libSDL2_ttf
+build_ios_tvos_lib "Static Library" libSDL2_ttf
 
-cp ../SDL_ttf.h $IOS_DIR/include/SDL2
-cp ../SDL_ttf.h $TVOS_DIR/include/SDL2
+cp ../SDL_ttf.h $ios_dir/include/SDL2
+cp ../SDL_ttf.h $tvos_dir/include/SDL2
 
-cp build/Release-ios-universal/libSDL2_ttf.a $IOS_DIR/lib
-cp build/Release-tvos-universal/libSDL2_ttf.a $TVOS_DIR/lib
+cp build/Release-ios-universal/libSDL2_ttf.a $ios_dir/lib
+cp build/Release-tvos-universal/libSDL2_ttf.a $tvos_dir/lib
 
 cd ../..
 
-# Create SDL2 Framework ########################################################
+# Make frameworks
 
 build_framework() {
 
@@ -221,5 +317,7 @@ cd ../ios
 build_framework
 cd ../tvos
 build_framework
+
+# Done! ########################################################################
 
 task "Done!"
