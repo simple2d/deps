@@ -136,6 +136,9 @@ copy_sdl_vc "SDL_image-vc"
 copy_sdl_vc "SDL_mixer-vc"
 copy_sdl_vc "SDL_ttf-vc"
 
+# Use SDL_mixer's version of zlib
+cp SDL_image-vc/lib/x64/zlib1.dll $vc_sdl_lib_dir
+
 cp glew-release/include/GL/glew.h $vc_glew_include_dir
 cp glew-release/bin/Release/x64/glew32.dll \
    glew-release/lib/Release/x64/glew32.lib $vc_glew_lib_dir
