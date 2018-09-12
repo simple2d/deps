@@ -8,3 +8,4 @@ clean:
 	rm -rf mingw/*
 	rm -rf ios/*
 	rm -rf tvos/*
+	rm -rf wasm/*
