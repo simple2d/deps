@@ -2,13 +2,13 @@
 
 # Library URLs
 
-sdl_src="https://www.libsdl.org/release/SDL2-2.0.7.tar.gz"
-sdl_vc="https://www.libsdl.org/release/SDL2-devel-2.0.7-VC.zip"
-sdl_mingw="https://www.libsdl.org/release/SDL2-devel-2.0.7-mingw.tar.gz"
+sdl_src="https://www.libsdl.org/release/SDL2-2.0.8.tar.gz"
+sdl_vc="https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip"
+sdl_mingw="https://www.libsdl.org/release/SDL2-devel-2.0.8-mingw.tar.gz"
 
-image_src="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.2.tar.gz"
-image_vc="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.2-VC.zip"
-image_mingw="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.2-mingw.tar.gz"
+image_src="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.3.tar.gz"
+image_vc="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.3-VC.zip"
+image_mingw="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.3-mingw.tar.gz"
 
 mixer_src="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.2.tar.gz"
 mixer_vc="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip"
@@ -47,7 +47,8 @@ set -e
 # Make and enter temporary directory for libs
 
 mkdir -p tmp
-cd tmp
+tmp_dir=`pwd`/tmp
+cd $tmp_dir
 
 # Download libs ################################################################
 
@@ -220,15 +221,15 @@ task "Building SDL2 iOS and tvOS static libs..."
 
 cd SDL/Xcode-iOS/SDL
 
-build_ios_tvos_lib libSDL libSDL2
+build_ios_tvos_lib libSDL-iOS libSDL2
 
-cp -r ../../include/*.h $ios_dir/include/SDL2
-cp -r ../../include/*.h $tvos_dir/include/SDL2
+cp -R ../../include/*.h $ios_dir/include/SDL2
+cp -R ../../include/*.h $tvos_dir/include/SDL2
 
 cp build/Release-ios-universal/libSDL2.a $ios_dir/lib
 cp build/Release-tvos-universal/libSDL2.a $tvos_dir/lib
 
-cd ../../..
+cd $tmp_dir
 
 # Build SDL2_image
 
@@ -236,7 +237,7 @@ task "Building SDL2_image iOS and tvOS static libs..."
 
 cd SDL_image/Xcode-iOS
 
-build_ios_tvos_lib libSDL_image libSDL2_image
+build_ios_tvos_lib libSDL_image-iOS libSDL2_image
 
 cp ../SDL_image.h $ios_dir/include/SDL2
 cp ../SDL_image.h $tvos_dir/include/SDL2
@@ -244,7 +245,7 @@ cp ../SDL_image.h $tvos_dir/include/SDL2
 cp build/Release-ios-universal/libSDL2_image.a $ios_dir/lib
 cp build/Release-tvos-universal/libSDL2_image.a $tvos_dir/lib
 
-cd ../..
+cd $tmp_dir
 
 # Build SDL2_mixer
 
@@ -260,7 +261,7 @@ cp ../SDL_mixer.h $tvos_dir/include/SDL2
 cp build/Release-ios-universal/libSDL2_mixer.a $ios_dir/lib
 cp build/Release-tvos-universal/libSDL2_mixer.a $tvos_dir/lib
 
-cd ../..
+cd $tmp_dir
 
 # Build SDL2_ttf
 
@@ -276,7 +277,7 @@ cp ../SDL_ttf.h $tvos_dir/include/SDL2
 cp build/Release-ios-universal/libSDL2_ttf.a $ios_dir/lib
 cp build/Release-tvos-universal/libSDL2_ttf.a $tvos_dir/lib
 
-cd ../..
+cd $tmp_dir
 
 # Make frameworks
 
@@ -287,7 +288,7 @@ build_framework() {
   cd ..
 
   mkdir -p SDL2.framework/Headers
-  cp -r include/SDL2/*.h SDL2.framework/Headers
+  cp -R include/SDL2/*.h SDL2.framework/Headers
   mv lib/SDL2 SDL2.framework
 
   cat > SDL2.framework/Info.plist <<EOF
@@ -320,6 +321,8 @@ cd ../ios
 build_framework
 cd ../tvos
 build_framework
+
+cd $tmp_dir
 
 # Done! ########################################################################
 
