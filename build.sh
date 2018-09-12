@@ -9,6 +9,9 @@ sdl_mingw="https://www.libsdl.org/release/SDL2-devel-2.0.8-mingw.tar.gz"
 image_src="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.3.tar.gz"
 image_vc="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.3-VC.zip"
 image_mingw="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.3-mingw.tar.gz"
+image_zlib_dir="zlib-1.2.11"
+image_png_dir="libpng-1.6.32"
+image_jpeg_dir="jpeg-9b"
 
 mixer_src="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.2.tar.gz"
 mixer_vc="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip"
@@ -35,6 +38,13 @@ mingw_lib_dir=`pwd`/mingw/lib
 
 ios_dir=`pwd`/ios
 tvos_dir=`pwd`/tvos
+
+if [ -z "$1" ]; then
+  echo "Please provide the path to your Emscripten toolchain, \`emsdk\`"
+  exit 1
+fi
+emsdk_dir=$1
+wasm_dir=`pwd`/wasm
 
 # Helpers
 
@@ -322,6 +332,109 @@ build_framework
 cd ../tvos
 build_framework
 
+cd $tmp_dir
+
+# WebAssembly ##################################################################
+
+task "Making WebAssembly libs..."
+
+mkdir -p $wasm_dir/lib
+
+source $emsdk_dir/emsdk_env.sh
+
+# Check if `emcc` is available
+if ! which emcc > /dev/null; then
+  echo "Cannot find emcc, exiting..."
+  exit
+fi
+
+# Check if `python2` is available, required for SDL
+if ! which python2 > /dev/null; then
+  echo "Cannot find python2, exiting..."
+  exit
+fi
+
+# Build SDL2
+
+task "Building SDL2 for WebAssembly..."
+
+cd SDL
+emconfigure ./configure --host=asmjs-unknown-emscripten --disable-assembly --disable-threads --disable-cpuinfo CFLAGS="-Os" --prefix="$PWD/build/emscripten"
+emmake make && emmake make install
+cp -R build/emscripten/include $wasm_dir
+cp build/emscripten/lib/libSDL2.a $wasm_dir/lib
+cd $tmp_dir
+
+# # Build SDL2_image dependencies
+#
+# cd SDL_image/external
+#
+# # Build zlib
+# cd $image_zlib_dir
+# emconfigure ./configure --prefix="$PWD/build/emscripten"
+# sed -i -e "s/^AR=.*$/AR=emcc/" Makefile
+# sed -i -e "s/libz\.a/libz.bc/" Makefile
+# emmake make
+# cd ..
+#
+#
+# # Build png
+# cd $image_png_dir
+# emconfigure ./configure --with-zlib-prefix="$PWD/../$image_zlib_dir/" --prefix="$PWD/build/emscripten"
+# emconfigure ./configure --with-zlib-prefix="../zlib-1.2.11/build/emscripten/lib" --prefix="$PWD/build/emscripten"
+# emmake make
+# cd ..
+#
+# cd $image_png_dir
+# sed -i -e "s/\#define PNG_ZLIB_VERNUM 0x1250/#define PNG_ZLIB_VERNUM 0x1280/g" ./pnglibconf.h
+# sed -i -e "s/ZPREFIX\=\'z\_\'/ZPREFIX='..\/zlib-1.2.11\/'/g" ./configure
+#
+# emconfigure ./configure --with-zlib-prefix='../zlib-1.2.11/' --prefix="$PWD/build/emscripten"
+#
+# sed -i -e "s/^DEFAULT_INCLUDES \= \-I\./DEFAULT_INCLUDES = -I. -I..\/zlib-1.2.11\//g" ./Makefile
+# sed -i -e "s/^LIBS \= \-lz/LIBS = -L..\/zlib-1.2.11\//g" ./Makefile
+# emmake make --include-dir=../zlib-1.2.11/
+# emcc -static  -fno-common -DPIC  .libs/png.o .libs/pngerror.o .libs/pngget.o .libs/pngmem.o .libs/pngpread.o .libs/pngread.o .libs/pngrio.o .libs/pngrtran.o .libs/pngrutil.o .libs/pngset.o .libs/pngtrans.o .libs/pngwio.o .libs/pngwrite.o .libs/pngwtran.o .libs/pngwutil.o   -L../zlib-1.2.8/ -lc    -Wl,-soname -Wl,libpng16.16.dylib -Wl,-retain-symbols-file -Wl,libpng.sym -o .libs/libpng16.16.bc
+#
+#
+# # Build jpeg
+# cd $image_jpeg_dir
+#
+#
+# cd $tmp_dir
+
+
+# Build SDL2_image
+
+task "Building SDL2_image for WebAssembly..."
+
+cd SDL_image
+emconfigure ./configure --host=asmjs-unknown-emscripten --with-sdl-prefix="$PWD/../SDL/build/emscripten" CFLAGS="-Os" --prefix="$PWD/build/emscripten"
+emmake make && emmake make install
+cp build/emscripten/include/SDL2/SDL_image.h $wasm_dir/include/SDL2
+cp build/emscripten/lib/libSDL2_image.a $wasm_dir/lib
+cd $tmp_dir
+
+# Build SDL2_mixer
+
+task "Building SDL2_mixer for WebAssembly..."
+
+cd SDL_mixer
+emconfigure ./configure --host=asmjs-unknown-emscripten --with-sdl-prefix="$PWD/../SDL/build/emscripten" CFLAGS="-Os" --prefix="$PWD/build/emscripten"
+emmake make && emmake make install
+cp build/emscripten/include/SDL2/SDL_mixer.h $wasm_dir/include/SDL2
+cp build/emscripten/lib/libSDL2_mixer.a $wasm_dir/lib
+cd $tmp_dir
+
+# Build SDL2_ttf
+
+task "Building SDL2_ttf for WebAssembly..."
+
+cd SDL_ttf
+emconfigure ./configure --with-sdl-prefix="$PWD/../SDL/build/emscripten" CFLAGS="-Os" --prefix="$PWD/build/emscripten"
+emmake make && emmake make install
+cp build/emscripten/include/SDL2/SDL_ttf.h $wasm_dir/include/SDL2
+cp build/emscripten/lib/libSDL2_ttf.a $wasm_dir/lib
 cd $tmp_dir
 
 # Done! ########################################################################
