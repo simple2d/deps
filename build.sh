@@ -2,17 +2,17 @@
 
 # Library URLs
 
-sdl_src="https://www.libsdl.org/release/SDL2-2.0.8.tar.gz"
-sdl_vc="https://www.libsdl.org/release/SDL2-devel-2.0.8-VC.zip"
-sdl_mingw="https://www.libsdl.org/release/SDL2-devel-2.0.8-mingw.tar.gz"
+sdl_src="https://www.libsdl.org/release/SDL2-2.0.9.tar.gz"
+sdl_vc="https://www.libsdl.org/release/SDL2-devel-2.0.9-VC.zip"
+sdl_mingw="https://www.libsdl.org/release/SDL2-devel-2.0.9-mingw.tar.gz"
 
-image_src="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.3.tar.gz"
-image_vc="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.3-VC.zip"
-image_mingw="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.3-mingw.tar.gz"
+image_src="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.4.tar.gz"
+image_vc="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.4-VC.zip"
+image_mingw="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.4-mingw.tar.gz"
 
-mixer_src="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.2.tar.gz"
-mixer_vc="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-VC.zip"
-mixer_mingw="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.2-mingw.tar.gz"
+mixer_src="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz"
+mixer_vc="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip"
+mixer_mingw="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-mingw.tar.gz"
 
 ttf_src="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz"
 ttf_vc="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.14-VC.zip"
@@ -253,7 +253,7 @@ task "Building SDL2_mixer iOS and tvOS static libs..."
 
 cd SDL_mixer/Xcode-iOS
 
-build_ios_tvos_lib "Static Library" libSDL2_mixer "GCC_PREPROCESSOR_DEFINITIONS=MUSIC_WAV MUSIC_MID_TIMIDITY MUSIC_OGG OGG_USE_TREMOR OGG_HEADER=<ivorbisfile.h> MUSIC_FLAC FLAC__HAS_OGG HAVE_SYS_PARAM_H HAVE_STDINT_H HAVE_LROUND HAVE_SETENV HAVE_SINF"
+build_ios_tvos_lib libSDL_mixer-iOS libSDL2_mixer "GCC_PREPROCESSOR_DEFINITIONS=MUSIC_WAV MUSIC_MID_TIMIDITY MUSIC_OGG OGG_USE_TREMOR OGG_HEADER=<ivorbisfile.h> MUSIC_FLAC FLAC__HAS_OGG HAVE_SYS_PARAM_H HAVE_STDINT_H HAVE_LROUND HAVE_SETENV HAVE_SINF"
 
 cp ../SDL_mixer.h $ios_dir/include/SDL2
 cp ../SDL_mixer.h $tvos_dir/include/SDL2
