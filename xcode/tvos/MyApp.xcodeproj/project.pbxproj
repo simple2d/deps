@@ -68,8 +68,8 @@
 				E228A7451F1678F000E03F68 /* main.c */,
 				E228A73D1F16780900E03F68 /* Assets.xcassets */,
 				E228A73F1F16780900E03F68 /* Info.plist */,
-				E228A72F1F16780900E03F68 /* Products */,
 				E25EF17D1F1679F30045EA1D /* Frameworks */,
+				E228A72F1F16780900E03F68 /* Products */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -128,7 +128,7 @@
 		E228A7261F16780900E03F68 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0930;
+				LastUpgradeCheck = 1020;
 				TargetAttributes = {
 					E228A72D1F16780900E03F68 = {
 						CreatedOnToolsVersion = 8.3.3;
@@ -138,7 +138,7 @@
 			};
 			buildConfigurationList = E228A7291F16780900E03F68 /* Build configuration list for PBXProject "MyApp" */;
 			compatibilityVersion = "Xcode 10.0";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
@@ -181,6 +181,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -234,6 +235,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";

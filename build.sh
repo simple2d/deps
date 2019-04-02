@@ -1,27 +1,32 @@
 #!/bin/bash
 
-# Library URLs
+# Library URLs #################################################################
 
-sdl_src="https://www.libsdl.org/release/SDL2-2.0.9.tar.gz"
-sdl_vc="https://www.libsdl.org/release/SDL2-devel-2.0.9-VC.zip"
-sdl_mingw="https://www.libsdl.org/release/SDL2-devel-2.0.9-mingw.tar.gz"
+sdl_version=2.0.9
+sdl_src="https://www.libsdl.org/release/SDL2-${sdl_version}.tar.gz"
+sdl_vc="https://www.libsdl.org/release/SDL2-devel-${sdl_version}-VC.zip"
+sdl_mingw="https://www.libsdl.org/release/SDL2-devel-${sdl_version}-mingw.tar.gz"
 
-image_src="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-2.0.4.tar.gz"
-image_vc="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.4-VC.zip"
-image_mingw="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-2.0.4-mingw.tar.gz"
+image_version=2.0.4
+image_src="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-${image_version}.tar.gz"
+image_vc="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-${image_version}-VC.zip"
+image_mingw="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-${image_version}-mingw.tar.gz"
 
-mixer_src="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz"
-mixer_vc="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip"
-mixer_mingw="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-mingw.tar.gz"
+mixer_version=2.0.4
+mixer_src="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-${mixer_version}.tar.gz"
+mixer_vc="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-${mixer_version}-VC.zip"
+mixer_mingw="https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-${mixer_version}-mingw.tar.gz"
 
-ttf_src="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-2.0.14.tar.gz"
-ttf_vc="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.14-VC.zip"
-ttf_mingw="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-2.0.14-mingw.tar.gz"
+ttf_version=2.0.15
+ttf_src="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-${ttf_version}.tar.gz"
+ttf_vc="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-${ttf_version}-VC.zip"
+ttf_mingw="https://www.libsdl.org/projects/SDL_ttf/release/SDL2_ttf-devel-${ttf_version}-mingw.tar.gz"
 
-glew_src="https://github.com/nigels-com/glew/archive/glew-2.1.0.zip"
-glew_release="https://github.com/nigels-com/glew/releases/download/glew-2.1.0/glew-2.1.0-win32.zip"
+glew_version=2.1.0
+glew_src="https://github.com/nigels-com/glew/archive/glew-${glew_version}.zip"
+glew_release="https://github.com/nigels-com/glew/releases/download/glew-${glew_version}/glew-${glew_version}-win32.zip"
 
-# Directories
+# Directories ##################################################################
 
 vc_sdl_include_dir=`pwd`/vc/SDL2/include/SDL2
 vc_sdl_lib_dir=`pwd`/vc/SDL2/lib
@@ -33,10 +38,42 @@ mingw_include_dir=`pwd`/mingw/include
 mingw_sdl_include_dir=$mingw_include_dir/SDL2
 mingw_lib_dir=`pwd`/mingw/lib
 
+homebrew=`pwd`/homebrew
+
+macos_dir=`pwd`/macos
+macos_include_dir=$macos_dir/include
+macos_lib_dir=$macos_dir/lib
+
 ios_dir=`pwd`/ios
 tvos_dir=`pwd`/tvos
 
-# Helpers
+# Detect platforms #############################################################
+
+unamestr=$(uname)
+
+# macOS
+if [[ $unamestr == 'Darwin' ]]; then
+  platform='macos'
+
+# ARM
+elif [[ $(uname -m) =~ 'arm' && $unamestr == 'Linux' ]]; then
+  platform='arm'
+
+  # Raspberry Pi
+  if [[ $(cat /etc/os-release | grep -i raspbian) ]]; then
+    platform_rpi=true
+  fi
+
+# Linux
+elif [[ $unamestr == 'Linux' ]]; then
+  platform='linux'
+
+# Windows / MinGW
+elif [[ $unamestr =~ 'MINGW' ]]; then
+  platform='mingw'
+fi
+
+# Helpers ######################################################################
 
 task() {
   printf "\033[1;34m==>\033[1;39m $1\033[0m\n"
@@ -44,7 +81,7 @@ task() {
 
 set -e
 
-# Make and enter temporary directory for libs
+# Make and enter temporary directory for libs ##################################
 
 mkdir -p tmp
 tmp_dir=`pwd`/tmp
@@ -98,26 +135,26 @@ extract() {
   fi
 }
 
-extract "SDL2.tar.gz"       "SDL2-2.*" "SDL"
-extract "SDL2-vc.zip"       "SDL2-2.*" "SDL-vc"
-extract "SDL2-mingw.tar.gz" "SDL2-2.*" "SDL-mingw"
+extract "SDL2.tar.gz"       "SDL2-${sdl_version}" "SDL"
+extract "SDL2-vc.zip"       "SDL2-${sdl_version}" "SDL-vc"
+extract "SDL2-mingw.tar.gz" "SDL2-${sdl_version}" "SDL-mingw"
 
-extract "SDL2_image.tar.gz"       "SDL2_image-2.*" "SDL_image"
-extract "SDL2_image-vc.zip"       "SDL2_image-2.*" "SDL_image-vc"
-extract "SDL2_image-mingw.tar.gz" "SDL2_image-2.*" "SDL_image-mingw"
+extract "SDL2_image.tar.gz"       "SDL2_image-${image_version}" "SDL_image"
+extract "SDL2_image-vc.zip"       "SDL2_image-${image_version}" "SDL_image-vc"
+extract "SDL2_image-mingw.tar.gz" "SDL2_image-${image_version}" "SDL_image-mingw"
 
-extract "SDL2_mixer.tar.gz"       "SDL2_mixer-2.*" "SDL_mixer"
-extract "SDL2_mixer-vc.zip"       "SDL2_mixer-2.*" "SDL_mixer-vc"
-extract "SDL2_mixer-mingw.tar.gz" "SDL2_mixer-2.*" "SDL_mixer-mingw"
+extract "SDL2_mixer.tar.gz"       "SDL2_mixer-${mixer_version}" "SDL_mixer"
+extract "SDL2_mixer-vc.zip"       "SDL2_mixer-${mixer_version}" "SDL_mixer-vc"
+extract "SDL2_mixer-mingw.tar.gz" "SDL2_mixer-${mixer_version}" "SDL_mixer-mingw"
 
-extract "SDL2_ttf.tar.gz"       "SDL2_ttf-2.*" "SDL_ttf"
-extract "SDL2_ttf-vc.zip"       "SDL2_ttf-2.*" "SDL_ttf-vc"
-extract "SDL2_ttf-mingw.tar.gz" "SDL2_ttf-2.*" "SDL_ttf-mingw"
+extract "SDL2_ttf.tar.gz"       "SDL2_ttf-${ttf_version}" "SDL_ttf"
+extract "SDL2_ttf-vc.zip"       "SDL2_ttf-${ttf_version}" "SDL_ttf-vc"
+extract "SDL2_ttf-mingw.tar.gz" "SDL2_ttf-${ttf_version}" "SDL_ttf-mingw"
 
-extract "glew.zip"         "glew-glew*" "glew"
-extract "glew-release.zip" "glew-2.*"   "glew-release"
+extract "glew.zip"         "glew-glew-${glew_version}" "glew"
+extract "glew-release.zip" "glew-${glew_version}"      "glew-release"
 
-# VC Libs ######################################################################
+# VC libs ######################################################################
 
 task "Making VC libs..."
 
@@ -168,7 +205,79 @@ cp glew-release/include/GL/glew.h $mingw_include_dir
 cp ../glew-mingw/glew32.dll $mingw_bin_dir
 cp ../glew-mingw/libglew32.a ../glew-mingw/libglew32.dll.a $mingw_lib_dir
 
+# Linux Libs ###################################################################
+
+if [[ $platform == 'linux' ]]; then
+
+task "Making Linux libs..."
+
+fi  # end if Linux
+
+# macOS libs ###################################################################
+
+if [[ $platform == 'macos' ]]; then
+
+# This assumes that SDL is installed via Homebrew
+
+task "Making macOS libs..."
+
+# Install custom `sdl2_mixer` and `mpg123` to get static libraries and linking
+# Install custom `sdl2_ttf` to get newer version
+brew uninstall --force sdl2_ttf sdl2_mixer mpg123
+brew install $homebrew/mpg123.rb
+brew install $homebrew/sdl2_mixer.rb
+brew install $homebrew/sdl2_ttf.rb
+
+# Install other Homebrew libs if missing
+brew install sdl2 sdl2_image
+
+# Set Homebrew paths
+brew_cellar=`brew --cellar`
+brew_sdl_dir=$brew_cellar/sdl2/$sdl_version*
+brew_image_dir=$brew_cellar/sdl2_image/$image_version*
+brew_mixer_dir=$brew_cellar/sdl2_mixer/$mixer_version*
+brew_ttf_dir=$brew_cellar/sdl2_ttf/$ttf_version*
+
+# Includes
+
+mkdir -p $macos_include_dir
+
+cp -R $brew_sdl_dir/include/SDL2            $macos_include_dir
+cp $brew_image_dir/include/SDL2/SDL_image.h $macos_include_dir/SDL2
+cp $brew_mixer_dir/include/SDL2/SDL_mixer.h $macos_include_dir/SDL2
+cp $brew_ttf_dir/include/SDL2/SDL_ttf.h     $macos_include_dir/SDL2
+
+# Libs
+
+mkdir -p $macos_lib_dir
+
+# SDL2 lib
+cp $brew_sdl_dir/lib/libSDL2.a $macos_lib_dir
+
+# SDL2_image libs
+cp $brew_image_dir/lib/libSDL2_image.a  $macos_lib_dir
+cp $brew_cellar/jpeg/*/lib/libjpeg.a    $macos_lib_dir
+cp $brew_cellar/libpng/*/lib/libpng16.a $macos_lib_dir
+cp $brew_cellar/libtiff/*/lib/libtiff.a $macos_lib_dir
+cp $brew_cellar/webp/*/lib/libwebp.a    $macos_lib_dir
+
+# SDL2_mixer libs
+cp $brew_mixer_dir/lib/libSDL2_mixer.a          $macos_lib_dir
+cp $brew_cellar/mpg123/*/lib/libmpg123.a        $macos_lib_dir
+cp $brew_cellar/libogg/*/lib/libogg.a           $macos_lib_dir
+cp $brew_cellar/flac/*/lib/libFLAC.a            $macos_lib_dir
+cp $brew_cellar/libvorbis/*/lib/libvorbis.a     $macos_lib_dir
+cp $brew_cellar/libvorbis/*/lib/libvorbisfile.a $macos_lib_dir
+
+# SDL2_ttf libs
+cp $brew_ttf_dir/lib/libSDL2_ttf.a           $macos_lib_dir
+cp $brew_cellar/freetype/*/lib/libfreetype.a $macos_lib_dir
+
+fi  # end if macOS
+
 # iOS and tvOS frameworks ######################################################
+
+if [[ $platform == 'macos' ]]; then
 
 mkdir -p $ios_dir/include/SDL2
 mkdir -p $ios_dir/lib
@@ -269,7 +378,7 @@ task "Building SDL2_ttf iOS and tvOS static libs..."
 
 cd SDL_ttf/Xcode-iOS
 
-build_ios_tvos_lib "Static Library" libSDL2_ttf
+build_ios_tvos_lib libSDL_ttf-iOS libSDL2_ttf
 
 cp ../SDL_ttf.h $ios_dir/include/SDL2
 cp ../SDL_ttf.h $tvos_dir/include/SDL2
@@ -324,6 +433,8 @@ build_framework
 
 cd $tmp_dir
 
+fi  # end if macOS
+
 # Done! ########################################################################
 
-task "Done!"
+task "Done! 😅"
