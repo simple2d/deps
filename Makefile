@@ -8,7 +8,6 @@ install-simple2d:
 
 uninstall-simple2d:
 	brew uninstall --force simple2d
-	brew untap simple2d/tap
 
 # Uninstall all SDL2-related libs using Homebrew
 uninstall-sdl:
@@ -28,3 +27,5 @@ clean:
 	rm -rf macos/*
 	rm -rf ios/*
 	rm -rf tvos/*
+
+clean-all: uninstall-simple2d uninstall-sdl remove-xcode-user-data clean

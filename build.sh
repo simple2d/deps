@@ -205,14 +205,6 @@ cp glew-release/include/GL/glew.h $mingw_include_dir
 cp ../glew-mingw/glew32.dll $mingw_bin_dir
 cp ../glew-mingw/libglew32.a ../glew-mingw/libglew32.dll.a $mingw_lib_dir
 
-# Linux Libs ###################################################################
-
-if [[ $platform == 'linux' ]]; then
-
-task "Making Linux libs..."
-
-fi  # end if Linux
-
 # macOS libs ###################################################################
 
 if [[ $platform == 'macos' ]]; then
@@ -222,14 +214,12 @@ if [[ $platform == 'macos' ]]; then
 task "Making macOS libs..."
 
 # Install custom `sdl2_mixer` and `mpg123` to get static libraries and linking
-# Install custom `sdl2_ttf` to get newer version
-brew uninstall --force sdl2_ttf sdl2_mixer mpg123
+brew uninstall --force sdl2_mixer mpg123
 brew install $homebrew/mpg123.rb
 brew install $homebrew/sdl2_mixer.rb
-brew install $homebrew/sdl2_ttf.rb
 
 # Install other Homebrew libs if missing
-brew install sdl2 sdl2_image
+brew install sdl2 sdl2_image sdl2_ttf
 
 # Set Homebrew paths
 brew_cellar=`brew --cellar`
