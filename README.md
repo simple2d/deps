@@ -3,8 +3,8 @@
 This contains development libraries and assets needed by Simple 2D. External libraries included are:
 
 - Simple DirectMedia Layer (SDL)
-  - [SDL2 2.0.9](https://www.libsdl.org)
-  - [SDL2_image 2.0.4](https://www.libsdl.org/projects/SDL_image)
+  - [SDL2 2.0.10](https://www.libsdl.org)
+  - [SDL2_image 2.0.5](https://www.libsdl.org/projects/SDL_image)
   - [SDL2_mixer 2.0.4](https://www.libsdl.org/projects/SDL_mixer)
   - [SDL2_ttf 2.0.15](https://www.libsdl.org/projects/SDL_ttf)
 - OpenGL Extension Wrangler Library (GLEW)
@@ -26,7 +26,7 @@ This contains development libraries and assets needed by Simple 2D. External lib
 
 ## Building libraries
 
-Run `make` to build everything (and optionally `make clean` before starting). The primary build script is [`build.sh`](build.sh) and is designed to be run on macOS (to build macOS, iOS, and tvOS libraries). See the [`Makefile`](Makefile) for other helpful commands.
+Run `make` to build everything (and optionally `make uninstall` and `make clean` before starting). The primary build script is [`build.sh`](build.sh) and is designed to be run on macOS (to build macOS, iOS, and tvOS libraries). See the [`Makefile`](Makefile) for other helpful commands.
 
 ## Caveats
 

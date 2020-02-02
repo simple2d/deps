@@ -20,7 +20,7 @@ uninstall-sdl:
 remove-xcode-user-data:
 	find ./xcode -name "xcuserdata" -type d -exec rm -r "{}" \;
 
-clean:
+clean: remove-xcode-user-data
 	if [ -d "tmp" ]; then find tmp -maxdepth 1 -mindepth 1 -type d -exec rm -rf '{}' \;; fi
 	rm -rf vc/*
 	rm -rf mingw/*
@@ -28,4 +28,4 @@ clean:
 	rm -rf ios/*
 	rm -rf tvos/*
 
-clean-all: uninstall-simple2d uninstall-sdl remove-xcode-user-data clean
+uninstall: uninstall-simple2d uninstall-sdl

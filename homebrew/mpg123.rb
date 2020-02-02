@@ -1,11 +1,15 @@
-# Added `--enable-static`
-# Removed bottles
+# Original formula:
+#   https://github.com/Homebrew/homebrew-core/blob/master/Formula/mpg123.rb
+#
+# Changes:
+#   - Added `--enable-static`
+#   - Removed bottles
 
 class Mpg123 < Formula
   desc "MP3 player for Linux and UNIX"
   homepage "https://www.mpg123.de/"
-  url "https://downloads.sourceforge.net/project/mpg123/mpg123/1.25.10/mpg123-1.25.10.tar.bz2"
-  sha256 "6c1337aee2e4bf993299851c70b7db11faec785303cfca3a5c3eb5f329ba7023"
+  url "https://downloads.sourceforge.net/project/mpg123/mpg123/1.25.13/mpg123-1.25.13.tar.bz2"
+  sha256 "90306848359c793fd43b9906e52201df18775742dc3c81c06ab67a806509890a"
 
   def install
     args = %W[

@@ -2,12 +2,13 @@
 
 # Library URLs #################################################################
 
-sdl_version=2.0.9
-sdl_src="https://www.libsdl.org/release/SDL2-${sdl_version}.tar.gz"
+sdl_version=2.0.10
+# sdl_src="https://www.libsdl.org/release/SDL2-${sdl_version}.tar.gz"
+sdl_src="https://hg.libsdl.org/SDL/archive/tip.tar.gz"
 sdl_vc="https://www.libsdl.org/release/SDL2-devel-${sdl_version}-VC.zip"
 sdl_mingw="https://www.libsdl.org/release/SDL2-devel-${sdl_version}-mingw.tar.gz"
 
-image_version=2.0.4
+image_version=2.0.5
 image_src="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-${image_version}.tar.gz"
 image_vc="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-${image_version}-VC.zip"
 image_mingw="https://www.libsdl.org/projects/SDL_image/release/SDL2_image-devel-${image_version}-mingw.tar.gz"
@@ -135,7 +136,8 @@ extract() {
   fi
 }
 
-extract "SDL2.tar.gz"       "SDL2-${sdl_version}" "SDL"
+# extract "SDL2.tar.gz"       "SDL2-${sdl_version}" "SDL"
+extract "SDL2.tar.gz"       "SDL-853e815d193d" "SDL"
 extract "SDL2-vc.zip"       "SDL2-${sdl_version}" "SDL-vc"
 extract "SDL2-mingw.tar.gz" "SDL2-${sdl_version}" "SDL-mingw"
 
@@ -213,17 +215,21 @@ if [[ $platform == 'macos' ]]; then
 
 task "Making macOS libs..."
 
+# brew install sdl2
+brew install --HEAD sdl2
+
 # Install custom `sdl2_mixer` and `mpg123` to get static libraries and linking
 brew uninstall --force sdl2_mixer mpg123
 brew install $homebrew/mpg123.rb
 brew install $homebrew/sdl2_mixer.rb
 
 # Install other Homebrew libs if missing
-brew install sdl2 sdl2_image sdl2_ttf
+brew install sdl2_image sdl2_ttf
 
 # Set Homebrew paths
 brew_cellar=`brew --cellar`
-brew_sdl_dir=$brew_cellar/sdl2/$sdl_version*
+# brew_sdl_dir=$brew_cellar/sdl2/$sdl_version*
+brew_sdl_dir=$brew_cellar/sdl2/HEAD-853e815d193d
 brew_image_dir=$brew_cellar/sdl2_image/$image_version*
 brew_mixer_dir=$brew_cellar/sdl2_mixer/$mixer_version*
 brew_ttf_dir=$brew_cellar/sdl2_ttf/$ttf_version*

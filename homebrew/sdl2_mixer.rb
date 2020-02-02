@@ -1,9 +1,13 @@
-# Removed `depends_on "libmodplug"`
-# Added `depends_on "flac"`
-# Added `depends_on "libogg"`
-# Added `depends_on "mpg123"`
-# Replaced all `args` with below, adding `--disable-music-xxx-shared` to link statically
-# Removed bottles
+# Original formula:
+#   https://github.com/Homebrew/homebrew-core/blob/master/Formula/sdl2_mixer.rb
+#
+# Changes:
+#   - Removed `depends_on "libmodplug"`
+#   - Added `depends_on "flac"`
+#   - Added `depends_on "libogg"`
+#   - Added `depends_on "mpg123"`
+#   - Replaced all `args` with below, adding `--disable-music-xxx-shared` to link statically
+#   - Removed bottles
 
 class Sdl2Mixer < Formula
   desc "Sample multi-channel audio mixer library"
