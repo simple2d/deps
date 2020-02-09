@@ -15,6 +15,7 @@ This contains development libraries and assets needed by Simple 2D. External lib
 ## Contents
 
 - [`glew-mingw/`](glew-mingw) — Pre-built library binaries for GLEW on MinGW (see README in directory for details)
+- [`headers`](headers)
 - [`homebrew/`](homebrew) — Custom [Homebrew](https://brew.sh) formulas
 - [`ios/`](ios) — iOS SDL framework, built by [`build.sh`](build.sh)
 - [`macos/`](macos) — macOS static libraries, built by [`build.sh`](build.sh)

@@ -22,6 +22,7 @@ remove-xcode-user-data:
 
 clean: remove-xcode-user-data
 	if [ -d "tmp" ]; then find tmp -maxdepth 1 -mindepth 1 -type d -exec rm -rf '{}' \;; fi
+	rm -rf headers/*
 	rm -rf vc/*
 	rm -rf mingw/*
 	rm -rf macos/*
@@ -29,3 +30,5 @@ clean: remove-xcode-user-data
 	rm -rf tvos/*
 
 uninstall: uninstall-simple2d uninstall-sdl
+
+reset: clean uninstall

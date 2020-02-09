@@ -3,8 +3,7 @@
 # Library URLs #################################################################
 
 sdl_version=2.0.10
-# sdl_src="https://www.libsdl.org/release/SDL2-${sdl_version}.tar.gz"
-sdl_src="https://hg.libsdl.org/SDL/archive/tip.tar.gz"
+sdl_src="https://www.libsdl.org/release/SDL2-${sdl_version}.tar.gz"
 sdl_vc="https://www.libsdl.org/release/SDL2-devel-${sdl_version}-VC.zip"
 sdl_mingw="https://www.libsdl.org/release/SDL2-devel-${sdl_version}-mingw.tar.gz"
 
@@ -29,14 +28,15 @@ glew_release="https://github.com/nigels-com/glew/releases/download/glew-${glew_v
 
 # Directories ##################################################################
 
-vc_sdl_include_dir=`pwd`/vc/SDL2/include/SDL2
+headers_dir=`pwd`/headers
+
+vc_sdl_include_dir=`pwd`/vc/SDL2/include
 vc_sdl_lib_dir=`pwd`/vc/SDL2/lib
 vc_glew_include_dir=`pwd`/vc/glew/include
 vc_glew_lib_dir=`pwd`/vc/glew/lib
 
 mingw_bin_dir=`pwd`/mingw/bin
 mingw_include_dir=`pwd`/mingw/include
-mingw_sdl_include_dir=$mingw_include_dir/SDL2
 mingw_lib_dir=`pwd`/mingw/lib
 
 homebrew=`pwd`/homebrew
@@ -136,8 +136,7 @@ extract() {
   fi
 }
 
-# extract "SDL2.tar.gz"       "SDL2-${sdl_version}" "SDL"
-extract "SDL2.tar.gz"       "SDL-853e815d193d" "SDL"
+extract "SDL2.tar.gz"       "SDL2-${sdl_version}" "SDL"
 extract "SDL2-vc.zip"       "SDL2-${sdl_version}" "SDL-vc"
 extract "SDL2-mingw.tar.gz" "SDL2-${sdl_version}" "SDL-mingw"
 
@@ -156,6 +155,19 @@ extract "SDL2_ttf-mingw.tar.gz" "SDL2_ttf-${ttf_version}" "SDL_ttf-mingw"
 extract "glew.zip"         "glew-glew-${glew_version}" "glew"
 extract "glew-release.zip" "glew-${glew_version}"      "glew-release"
 
+# Collect headers ##############################################################
+
+mkdir -p $headers_dir/SDL2
+
+# GLEW
+cp glew-release/include/GL/glew.h $headers_dir
+
+# SDL
+cp -a SDL/include/*.h    $headers_dir/SDL2
+cp SDL_image/SDL_image.h $headers_dir/SDL2
+cp SDL_mixer/SDL_mixer.h $headers_dir/SDL2
+cp SDL_ttf/SDL_ttf.h     $headers_dir/SDL2
+
 # VC libs ######################################################################
 
 task "Making VC libs..."
@@ -165,9 +177,12 @@ mkdir -p $vc_sdl_lib_dir
 mkdir -p $vc_glew_include_dir
 mkdir -p $vc_glew_lib_dir
 
+# Copy headers
+cp -R $headers_dir/SDL2 $vc_sdl_include_dir
+cp $headers_dir/glew.h  $vc_glew_include_dir
+
 copy_sdl_vc() {
   # $1 lib
-  cp $1/include/*.h $vc_sdl_include_dir
   cp $1/lib/x64/*.{dll,lib} $vc_sdl_lib_dir
 }
 
@@ -179,7 +194,6 @@ copy_sdl_vc "SDL_ttf-vc"
 # Use SDL_mixer's version of zlib
 cp SDL_image-vc/lib/x64/zlib1.dll $vc_sdl_lib_dir
 
-cp glew-release/include/GL/glew.h $vc_glew_include_dir
 cp glew-release/bin/Release/x64/glew32.dll \
    glew-release/lib/Release/x64/glew32.lib $vc_glew_lib_dir
 
@@ -188,14 +202,17 @@ cp glew-release/bin/Release/x64/glew32.dll \
 task "Making MinGW libs..."
 
 mkdir -p $mingw_bin_dir
-mkdir -p $mingw_sdl_include_dir
+mkdir -p $mingw_include_dir
 mkdir -p $mingw_lib_dir
+
+# Copy headers
+cp -R $headers_dir/SDL2 $mingw_include_dir
+cp $headers_dir/glew.h  $mingw_include_dir
 
 copy_sdl_mingw() {
   # $1 lib
   cp $1/x86_64-w64-mingw32/bin/*.dll $mingw_bin_dir
-  cp $1/x86_64-w64-mingw32/include/SDL2/*.h $mingw_sdl_include_dir
-  cp $1/x86_64-w64-mingw32/lib/*.a $mingw_lib_dir
+  cp $1/x86_64-w64-mingw32/lib/*.a   $mingw_lib_dir
 }
 
 copy_sdl_mingw "SDL-mingw"
@@ -203,7 +220,6 @@ copy_sdl_mingw "SDL_image-mingw"
 copy_sdl_mingw "SDL_mixer-mingw"
 copy_sdl_mingw "SDL_ttf-mingw"
 
-cp glew-release/include/GL/glew.h $mingw_include_dir
 cp ../glew-mingw/glew32.dll $mingw_bin_dir
 cp ../glew-mingw/libglew32.a ../glew-mingw/libglew32.dll.a $mingw_lib_dir
 
@@ -216,7 +232,7 @@ if [[ $platform == 'macos' ]]; then
 task "Making macOS libs..."
 
 # brew install sdl2
-brew install --HEAD sdl2
+brew install sdl2
 
 # Install custom `sdl2_mixer` and `mpg123` to get static libraries and linking
 brew uninstall --force sdl2_mixer mpg123
@@ -228,20 +244,14 @@ brew install sdl2_image sdl2_ttf
 
 # Set Homebrew paths
 brew_cellar=`brew --cellar`
-# brew_sdl_dir=$brew_cellar/sdl2/$sdl_version*
-brew_sdl_dir=$brew_cellar/sdl2/HEAD-853e815d193d
+brew_sdl_dir=$brew_cellar/sdl2/$sdl_version*
 brew_image_dir=$brew_cellar/sdl2_image/$image_version*
 brew_mixer_dir=$brew_cellar/sdl2_mixer/$mixer_version*
 brew_ttf_dir=$brew_cellar/sdl2_ttf/$ttf_version*
 
-# Includes
-
+# Copy headers
 mkdir -p $macos_include_dir
-
-cp -R $brew_sdl_dir/include/SDL2            $macos_include_dir
-cp $brew_image_dir/include/SDL2/SDL_image.h $macos_include_dir/SDL2
-cp $brew_mixer_dir/include/SDL2/SDL_mixer.h $macos_include_dir/SDL2
-cp $brew_ttf_dir/include/SDL2/SDL_ttf.h     $macos_include_dir/SDL2
+cp -R $headers_dir/SDL2 $macos_include_dir
 
 # Libs
 
@@ -275,11 +285,6 @@ fi  # end if macOS
 
 if [[ $platform == 'macos' ]]; then
 
-mkdir -p $ios_dir/include/SDL2
-mkdir -p $ios_dir/lib
-mkdir -p $tvos_dir/include/SDL2
-mkdir -p $tvos_dir/lib
-
 # Use xcpretty for nicer output: gem install xcpretty
 if xcpretty -v &>/dev/null; then
   XCPRETTY=xcpretty
@@ -288,6 +293,9 @@ else
   echo -e "  Run \`gem install xcpretty\` for nicer xcodebuild output."
   XCPRETTY=cat
 fi
+
+mkdir -p $ios_dir/lib
+mkdir -p $tvos_dir/lib
 
 build_ios_tvos_lib() {
   target=$1
@@ -328,9 +336,6 @@ cd SDL/Xcode-iOS/SDL
 
 build_ios_tvos_lib libSDL-iOS libSDL2
 
-cp -R ../../include/*.h $ios_dir/include/SDL2
-cp -R ../../include/*.h $tvos_dir/include/SDL2
-
 cp build/Release-ios-universal/libSDL2.a $ios_dir/lib
 cp build/Release-tvos-universal/libSDL2.a $tvos_dir/lib
 
@@ -343,9 +348,6 @@ task "Building SDL2_image iOS and tvOS static libs..."
 cd SDL_image/Xcode-iOS
 
 build_ios_tvos_lib libSDL_image-iOS libSDL2_image
-
-cp ../SDL_image.h $ios_dir/include/SDL2
-cp ../SDL_image.h $tvos_dir/include/SDL2
 
 cp build/Release-ios-universal/libSDL2_image.a $ios_dir/lib
 cp build/Release-tvos-universal/libSDL2_image.a $tvos_dir/lib
@@ -360,9 +362,6 @@ cd SDL_mixer/Xcode-iOS
 
 build_ios_tvos_lib libSDL_mixer-iOS libSDL2_mixer "GCC_PREPROCESSOR_DEFINITIONS=MUSIC_WAV MUSIC_MID_TIMIDITY MUSIC_OGG OGG_USE_TREMOR OGG_HEADER=<ivorbisfile.h> MUSIC_FLAC FLAC__HAS_OGG HAVE_SYS_PARAM_H HAVE_STDINT_H HAVE_LROUND HAVE_SETENV HAVE_SINF"
 
-cp ../SDL_mixer.h $ios_dir/include/SDL2
-cp ../SDL_mixer.h $tvos_dir/include/SDL2
-
 cp build/Release-ios-universal/libSDL2_mixer.a $ios_dir/lib
 cp build/Release-tvos-universal/libSDL2_mixer.a $tvos_dir/lib
 
@@ -375,9 +374,6 @@ task "Building SDL2_ttf iOS and tvOS static libs..."
 cd SDL_ttf/Xcode-iOS
 
 build_ios_tvos_lib libSDL_ttf-iOS libSDL2_ttf
-
-cp ../SDL_ttf.h $ios_dir/include/SDL2
-cp ../SDL_ttf.h $tvos_dir/include/SDL2
 
 cp build/Release-ios-universal/libSDL2_ttf.a $ios_dir/lib
 cp build/Release-tvos-universal/libSDL2_ttf.a $tvos_dir/lib
@@ -393,7 +389,7 @@ build_framework() {
   cd ..
 
   mkdir -p SDL2.framework/Headers
-  cp -R include/SDL2/*.h SDL2.framework/Headers
+  cp -a $headers_dir/SDL2/. SDL2.framework/Headers
   mv lib/SDL2 SDL2.framework
 
   cat > SDL2.framework/Info.plist <<EOF
