@@ -420,8 +420,11 @@ task "Building SDL2 framework for iOS and tvOS..."
 
 cd ../ios
 build_framework
+rm -r lib
+
 cd ../tvos
 build_framework
+rm -r lib
 
 cd $tmp_dir
 
