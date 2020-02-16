@@ -15,7 +15,7 @@ This contains development libraries and assets needed by Simple 2D. External lib
 ## Contents
 
 - [`glew-mingw/`](glew-mingw) — Pre-built library binaries for GLEW on MinGW (see README in directory for details)
-- [`headers`](headers)
+- [`headers/`](headers) — Headers needed for all platforms
 - [`homebrew/`](homebrew) — Custom [Homebrew](https://brew.sh) formulas
 - [`ios/`](ios) — iOS SDL framework, built by [`build.sh`](build.sh)
 - [`macos/`](macos) — macOS static libraries, built by [`build.sh`](build.sh)
@@ -27,11 +27,11 @@ This contains development libraries and assets needed by Simple 2D. External lib
 
 ## Building libraries
 
-Run `make` to build everything (and optionally `make uninstall` and `make clean` before starting). The primary build script is [`build.sh`](build.sh) and is designed to be run on macOS (to build macOS, iOS, and tvOS libraries). See the [`Makefile`](Makefile) for other helpful commands.
+Run `make` to build everything (and optionally `make uninstall` and `make clean` before starting). The primary build script, [`build.sh`](build.sh), is designed to be run on macOS (to build macOS, iOS, and tvOS libraries). See the [`Makefile`](Makefile) for other helpful commands.
 
 ## Caveats
 
-- Homebrew has a few outdated or mis-configured formulas for our needs. Updated formulas are in the [`homebrew/`](homebrew) directory, with changes made to the formula described in comments at the top of each.
+- Homebrew has a few mis-configured formulas for our needs. Updated formulas are in the [`homebrew/`](homebrew) directory, with the changes made to each formula in the file's comments.
 
 ## Updating
 
@@ -41,4 +41,4 @@ To update the libraries in this repo, do the following:
 - Update the Homebrew formulas in [`homebrew/`](homebrew) (version numbers, etc.)
 - Update [`glew-mingw/`](glew-mingw) (follow README in that directory)
 - Update Xcode projects in [`xcode/`](xcode) directory
-- Run `make clean && make` to rebuild everything
+- Run `make clean uninstall && make` to rebuild everything
