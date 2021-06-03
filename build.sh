@@ -306,21 +306,21 @@ build_ios_tvos_lib() {
   # Ignore empty environment variable args, replace with dummy var
   if [[ $env1 == '' ]]; then env1="A="; fi
   if [[ $env2 == '' ]]; then env2="A="; fi
-  
-  SIMULATOR_PATH="build/${fname}-iphonesimulator"
-  DEVICE_PATH="build/${fname}-iphoneos"
 
-  task "Building $fname for iPhone..."
-  buildDir="BUILD_DIR=$DEVICE_PATH"
-  xcodebuild -scheme "$scheme" -configuration Release -sdk iphoneos  SKIP_INSTALL=NO "$env1" "$env2" "$buildDir" | $XCPRETTY
+  SIMULATOR_ARCHIVE_PATH="build/${fname}-iphonesimulator.xcarchive"
+  DEVICE_ARCHIVE_PATH="build/${fname}-iphoneos.xcarchive"
+
 
   task "Building $fname for iPhone Simulator..."
-  buildDir="BUILD_DIR=$SIMULATOR_PATH"
+  env1="BUILD_DIR=$SIMULATOR_ARCHIVE_PATH"
+  xcodebuild archive -scheme "${scheme}" -archivePath ${SIMULATOR_ARCHIVE_PATH} -configuration Release  -sdk iphonesimulator SKIP_INSTALL=NO "$env1"
 
-  xcodebuild -scheme "$scheme" -configuration Release -sdk iphonesimulator SKIP_INSTALL=no "$env1" "$env2" "$buildDir" | $XCPRETTY
+  task "Building $fname for iPhone..."
+  env1="BUILD_DIR=$DEVICE_ARCHIVE_PATH"
+  xcodebuild archive -scheme "${scheme}" -archivePath ${DEVICE_ARCHIVE_PATH} -configuration Release -sdk iphoneos SKIP_INSTALL=NO "$env1"
 
   task "Combining all frameworks..."
-  xcodebuild -create-xcframework -framework ${SIMULATOR_PATH}/Products/Library/Frameworks/${fname}.framework -framework ${DEVICE_PATH}/Products/Library/Frameworks/${fname}.framework -output ${OUTPUT_DIR}/${fname}.xcframework
+  xcodebuild -create-xcframework -framework ${SIMULATOR_ARCHIVE_PATH}/Products/Library/Frameworks/${fname}.framework -framework ${DEVICE_ARCHIVE_PATH}/Products/Library/Frameworks/${fname}.framework -output ${OUTPUT_DIR}/${fname}.xcframework
 }
 
 # Build SDL2
