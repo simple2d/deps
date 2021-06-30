@@ -2,6 +2,7 @@
 #   https://github.com/Homebrew/homebrew-core/blob/master/Formula/sdl2_mixer.rb
 #
 # Changes:
+#   - Added `revision 99` so Homebrew doesn't upgrade the formula
 #   - Removed `depends_on "libmodplug"`
 #   - Added `depends_on "flac"`
 #   - Added `depends_on "libogg"`
@@ -14,7 +15,14 @@ class Sdl2Mixer < Formula
   homepage "https://www.libsdl.org/projects/SDL_mixer/"
   url "https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-2.0.4.tar.gz"
   sha256 "b4cf5a382c061cd75081cf246c2aa2f9df8db04bdda8dcdc6b6cca55bede2419"
-  head "https://hg.libsdl.org/SDL_mixer", :using => :hg
+  license "Zlib"
+  revision 99
+  head "https://hg.libsdl.org/SDL_mixer", using: :hg
+
+  livecheck do
+    url :homepage
+    regex(/SDL2_mixer[._-]v?(\d+(?:\.\d+)*)/i)
+  end
 
   depends_on "pkg-config" => :build
   depends_on "flac"
@@ -45,7 +53,6 @@ class Sdl2Mixer < Formula
   test do
     (testpath/"test.c").write <<~EOS
       #include <SDL2/SDL_mixer.h>
-
       int main()
       {
           int success = Mix_Init(0);
@@ -53,7 +60,8 @@ class Sdl2Mixer < Formula
           return success;
       }
     EOS
-    system ENV.cc, "-L#{lib}", "-lsdl2_mixer", "test.c", "-o", "test"
+    system ENV.cc, "-I#{Formula["sdl2"].opt_include}/SDL2",
+           "test.c", "-L#{lib}", "-lSDL2_mixer", "-o", "test"
     system "./test"
   end
 end
