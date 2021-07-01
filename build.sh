@@ -298,7 +298,7 @@ mkdir -p $ios_dir/lib
 mkdir -p $tvos_dir/lib
 
 build_ios_tvos_lib() {
-  target=$1
+  scheme=$1
   fname=$2
   env1=$3
   env2=$4
@@ -307,34 +307,29 @@ build_ios_tvos_lib() {
   if [[ $env1 == '' ]]; then env1="A="; fi
   if [[ $env2 == '' ]]; then env2="A="; fi
 
-  task "Building $fname for iPhone..."
-  xcodebuild -target "$target" -configuration Release -sdk iphoneos         "$env1" "$env2" | $XCPRETTY
+  SIMULATOR_ARCHIVE_PATH="build/${fname}-iphonesimulator.xcarchive"
+  DEVICE_ARCHIVE_PATH="build/${fname}-iphoneos.xcarchive"
+
 
   task "Building $fname for iPhone Simulator..."
-  xcodebuild -target "$target" -configuration Release -sdk iphonesimulator  "$env1" "$env2" | $XCPRETTY
+  env1="BUILD_DIR=$SIMULATOR_ARCHIVE_PATH"
+  xcodebuild archive -scheme "${scheme}" -archivePath ${SIMULATOR_ARCHIVE_PATH} -configuration Release  -sdk iphonesimulator SKIP_INSTALL=NO "$env1"
 
-  task "Building $fname for Apple TV..."
-  xcodebuild -target "$target" -configuration Release -sdk appletvos        "$env1" "$env2" | $XCPRETTY
+  task "Building $fname for iPhone..."
+  env1="BUILD_DIR=$DEVICE_ARCHIVE_PATH"
+  xcodebuild archive -scheme "${scheme}" -archivePath ${DEVICE_ARCHIVE_PATH} -configuration Release -sdk iphoneos SKIP_INSTALL=NO "$env1"
 
-  task "Building $fname for Apple TV Simulator..."
-  xcodebuild -target "$target" -configuration Release -sdk appletvsimulator "$env1" "$env2" | $XCPRETTY
-
-  task "Building $fname universal libs..."
-
-  mkdir -p build/Release-ios-universal
-  lipo build/Release-iphoneos/$fname.a build/Release-iphonesimulator/$fname.a -create -output build/Release-ios-universal/$fname.a
-
-  mkdir -p build/Release-tvos-universal
-  lipo build/Release-appletvos/$fname.a build/Release-appletvsimulator/$fname.a -create -output build/Release-tvos-universal/$fname.a
+  task "Combining all frameworks..."
+  xcodebuild -create-xcframework -framework ${SIMULATOR_ARCHIVE_PATH}/Products/Library/Frameworks/${fname}.framework -framework ${DEVICE_ARCHIVE_PATH}/Products/Library/Frameworks/${fname}.framework -output ${OUTPUT_DIR}/${fname}.xcframework
 }
 
 # Build SDL2
 
 task "Building SDL2 iOS and tvOS static libs..."
 
-cd SDL/Xcode-iOS/SDL
+cd SDL/Xcode/SDL
 
-build_ios_tvos_lib libSDL-iOS libSDL2
+build_ios_tvos_lib "Static Library-iOS" libSDL2
 
 cp build/Release-ios-universal/libSDL2.a $ios_dir/lib
 cp build/Release-tvos-universal/libSDL2.a $tvos_dir/lib
