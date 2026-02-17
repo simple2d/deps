@@ -1,5 +1,8 @@
 # Dependencies for Simple 2D
 
+> [!IMPORTANT]
+> This is an archive of Simple 2D with SDL2 dependencies (see [simple2d-sdl2](https://github.com/simple2d/simple2d-sdl2)). [Simple 2D](https://github.com/simple2d/simple2d) is being updated to support SDL3, and these dependencies are no longer used.
+
 This contains development libraries and assets needed by Simple 2D. External libraries included are:
 
 - Simple DirectMedia Layer (SDL)
